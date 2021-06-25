@@ -4,7 +4,7 @@ import pytesseract
 from PIL import Image
 
 
-img = cv2.imread("01.png")
+img = cv2.imread("images/list_name.png")
 rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 config_tesseract = "--tessdata-dir tessdata --psm 6"

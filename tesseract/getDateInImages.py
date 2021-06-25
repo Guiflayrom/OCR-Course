@@ -1,15 +1,14 @@
 import cv2
 import pytesseract
-from pytesseract import Output
 from PIL import ImageFont, Image, ImageDraw
+import re
+from pytesseract import Output
 import numpy as np
 
-img = cv2.imread("images/list_name.png")
+img = cv2.imread("images/despesas.png")
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-expand_pixels_y = 100
-img = cv2.resize(img,(img.shape[1],img.shape[0]+expand_pixels_y))
 
-config_tesseract = "--tessdata-dir tessdata --psm 4"
+config_tesseract = "--tessdata-dir tessdata"
 
 dataimg = pytesseract.image_to_data(img,lang="por",config=config_tesseract,output_type=Output.DICT)
 
@@ -25,6 +24,9 @@ def write_text(text,x,y,img,font,font_size,color):
     img = np.array(img_pil)
     return img
 
+regex_code_dateDMY = '^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/(19|20)\d\d$'
+
+
 for i in range(n_boxes):
     conf = float(dataimg['conf'][i])
     if conf > 1:
@@ -33,12 +35,11 @@ for i in range(n_boxes):
         font_size = 0.3
         font_color = (0,0,255)
         text = dataimg['text'][i]
-        
-        # cv2.putText(img,text,(x,y+20),cv2.FONT_HERSHEY_SIMPLEX,font_size,font_color)
-        cv2.rectangle(img,(x-5,y-5),(x+w,y+h+5),(0,255,0),1)
-        
-        img = write_text(text,x-5,y+25,img,font,10,font_color)
-    
+        if re.match(regex_code_dateDMY,text):
+            cv2.rectangle(img,(x-1,y-1),(x+w,y+h+1),(0,255,0),1)
+            img = write_text(text,x-1,y-2,img,font,10,font_color)
+            print(text)
+            
 cv2.imshow('image',img)
 cv2.waitKey(0)
 
